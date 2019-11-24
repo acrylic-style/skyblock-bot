@@ -1,0 +1,4 @@
+token: ur token here
+prefix: s!
+owners:
+  - # can run eval command, must be string

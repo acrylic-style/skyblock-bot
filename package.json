@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "bot-framework": "acrylic-style/bot-framework",
+    "discord.js": "^11.5.1",
+    "logger.js": "acrylic-style/logger.js",
+    "node-fetch": "^2.6.0",
+    "yaml": "^1.7.2"
+  }
+}
