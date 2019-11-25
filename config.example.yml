@@ -1,4 +1,5 @@
-token: ur token here
+token: # ur token here
 prefix: s!
+apiKey: # hypixel api key here (/api)
 owners:
   - # can run eval command, must be string

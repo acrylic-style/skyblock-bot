@@ -11,11 +11,12 @@ const client = new Discord.Client()
 const config = require('./config.yml')
 const lang = require('./lang/en.json')
 const fs = _fs.promises
+const Util = require('./src/util')
 let data
 
 (async () => {
-  if (!await fs.stat('./data.json')) await fs.writeFile('./data.json', '{}')
-  data = require('./data.json')
+  if (!await Util.exists('./data.json')) await fs.writeFile('./data.json', '{}')
+  data = await Util.getData()
   process.emit('loaded')
 })()
 

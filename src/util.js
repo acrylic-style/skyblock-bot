@@ -1,64 +1,89 @@
 const fetch = require('node-fetch')
 const BASE_URL = 'https://api.hypixel.net'
+const fs = require('fs').promises
+const HypixelAPIError = require('./exceptions/HypixelAPIError')
+const cache = require('./cache')
 
 /**
- * @typedef APIResponse
- * @property {boolean} success If api request succeeded or not
- * @property {number} page Current page. Default: 0
- * @property {number} totalPages Total pages available
- * @property {number} totalAuctions Count of all auctions, including expired auctions.
- * @property {number} lastUpdated Last updated time
- * @property {Array<Auction>} auctions List of active auctions. 1000 entries max if only fetched single page.
- *
- * -----
- *
- * @typedef Auction
- * @property {string} uuid UUID
- * @property {string} auctioneer UUID
- * @property {string} profile_id UUID
- * @property {Array<string>} coop Array of UUIDs
- * @property {number} start
- * @property {number} end
- * @property {string} item_name Item name with reforges.
- * @property {string} item_lore Item lore(description), it includes enchantments and hot potato books.
- * @property {string} extra ??? (use it with attention, since there is "Bow Bow" and something)
- * @property {Category} category Item category
- * @property {Tier} tier Item rarity
- * @property {number} starting_bid Starting bid, 10 is supposed minimum but 1 is possible. (when selling dirts, etc)
- * @property {string} item_bytes Base64 encoded string. Actual type is NBT when you decode.
- * @property {boolean} claimed Default: false
- * @property {Array<string>} claimed_bidders Array of UUIDs. Default: Empty array
- * @property {number} highest_bid_amount Highest bid. Default: 0
- * @property {Array<Bid>} bids All bids made to this auction. Default: Empty array
- *
- * -----
- *
- * @typedef { "armor" | "blocks" | "misc" | "weapon" | "consumables" | "accessories" } Category
- *
- * -----
- *
- * @typedef { "COMMON" | "UNCOMMON" | "RARE" | "EPIC" | "LEGENDARY" | "SPECIAL" } Tier
- *
- * -----
- * 
- * @typedef Bid
- * @property {string} auction_id
- * @property {string} bidder UUID
- * @property {string} profile_id UUID
- * @property {number} amount how much they wasted into auction, overall.
- * @property {number} timestamp
+ * Provides useful static methods.
  */
-
 class Util {
   /**
    * @param {string} resource
    * @param {string} key API key generated from in-game
    * @param {number} page Page number
-   * @returns {APIResponse} API Response
+   * @returns {Promise<APIResponse>} API Response
    */
-  async get(resource, key, page) {
-    return await fetch(`${BASE_URL}/${resource}?key=${key}${page && !isNaN(Number.parseInt(page)) ? `&page=${page}` : ''}`).then(res => res.json())
+  static async getAPI(resource, key, params) {
+    let param = ''
+    Object.keys(params).forEach(key => {
+      param = param + `&${key}=${params[key]}`
+    })
+    return await fetch(`${BASE_URL}/${resource}?key=${key}${param}`).then(res => res.json())
+  }
+
+  /**
+   * @param {string} key API key
+   * @param {string} uuidOrName
+   * @param {boolean} isUniqueId
+   * @returns {Player}
+   */
+  static async getPlayer(key, uuidOrName, isUniqueId) {
+    const response = await this.getAPI('player', key, {[isUniqueId ? 'uuid' : 'name']: uuidOrName})
+    if (!response.success) throw new HypixelAPIError(response.cause)
+    await cache.setCache(`player:${uuidOrName}`, response.player, 1000*60*60*24*7) // expires in a week
+    return response.player
+  }
+
+  /**
+   * @param {string} key
+   * @param {number} page
+   * @returns {Promise<SkyBlockAuctionsAPIResponse>}
+   */
+  static async getSkyBlockAuctions(key, page) {
+    const response = await this.getAPI('skyblock/auctions', key, { page })
+    if (!response.success) throw new HypixelAPIError(response.cause)
+    await cache.setCache('skyblock/auctions', JSON.stringify(response.auctions), 1000*60*10)
+    return response.auctions
+  }
+
+  static async getAllSkyblockAuctions(key) {
+    if (await cache.exists('skyblock/auctions/all')) return await cache.getCache('skyblock/auctions/all')
+    const firstPage = await this.getSkyBlockAuctions(key, 0)
+    const auctions = firstPage.auctions
+    for (let i = 1; i < firstPage.totalPages; i++) {
+      const res = await this.getSkyBlockAuctions(key, i)
+      auctions.concat(res.auctions)
+    }
+    await cache.setCache('skyblock/auctions/all', JSON.stringify(auctions), 1000*60*10) // expires in 10 minutes
+    return auctions
+  }
+
+  static async getData() {
+    return JSON.parse(await fs.readFile(__dirname + '/../data.json', { encoding: 'utf-8' }))
+  }
+
+  static async setValue(key, value) {
+    const data = Util.getData()
+    data[key] = value
+    return await fs.writeFile(__dirname + '/../data.json', JSON.stringify(data))
+  }
+
+  static async setData(data) {
+    return await fs.writeFile(__dirname + '/../data.json', JSON.stringify(data))
+  }
+
+  /**
+   * @param {string} str 
+   * @returns {string} string without color codes
+   */
+  static stripColor(str) {
+    str.replace(/[§]./gm, '')
+  }
+
+  static async exists(path) {
+    return await fs.stat(path).catch(() => false).then(() => true)
   }
 }
 
-module.exports = { Util }
+module.exports = Util
