@@ -97,14 +97,16 @@
  * @property {boolean} autoDetectLanguage
  * @property {string} userLanguage
  * @property {{
- * links: Map<string, string>,
+ * links: {
+ * [name:string]: string,
+ * },
  * prompt: boolean,
  * TWITCH: string,
  * YOUTUBE: string,
  * DISCORD: string,
  * }} socialMedia
- * @property {Map<string, number>} achievementRewardsNew
- * @property {Map<string, object>} challenges
+ * @property {{[name:string]: number}} achievementRewardsNew
+ * @property {{[name:string]: object}} challenges
  * @property {{
  * total: number,
  * total_mcsorg: number,
@@ -140,16 +142,19 @@
  * @property {number} levelUp_MVP_PLUS
  * @property {string} currentClickEffect
  * @property {{ autoActivate: boolean }} questSettings
- * @property {string} monthlyPackageRank: string,
- * @property {string} mostRecentMonthlyPackageRank: string,
- * @property {string} particlePack: string,
- * @property {string} rankPlusColor: string,
- * @property {string} monthlyRankColor: string,
- * @property {string} currentCloak: string,
- * @property {boolean} battlePassGlowStatus: boolean,
+ * @property {string} packageRank
+ * @property {string} monthlyPackageRank
+ * @property {string} mostRecentMonthlyPackageRank
+ * @property {string} particlePack
+ * @property {string} rankPlusColor
+ * @property {string} monthlyRankColor
+ * @property {string} currentCloak
+ * @property {boolean} battlePassGlowStatus
+ * @property {string} prefix
+ * @property {string} rank
  * @property {string} currentGadget
- * @property {Map<string, {REGULAR: boolean, VIP: boolean, VIP_PLUS: boolean, MVP: boolean, MVP_PLUS: boolean}>} monthlycrates
- * @property {Map<string, boolean>} halloween2019Cooldowns
+ * @property {{[name:string]: {REGULAR: boolean, VIP: boolean, VIP_PLUS: boolean, MVP: boolean, MVP_PLUS: boolean}>}} monthlycrates
+ * @property {{[name:string]:boolean}} halloween2019Cooldowns
  * @property {{
  * canCustomize: boolean,
  * allowed_max_height: number,
@@ -160,6 +165,231 @@
  * }} achievementTotem
  * @property {string} currentPet
  * @property {string} mostRecentGameType
+ * 
+ * -----
+ *
+ * @typedef DecodedCompoundNBT
+ * @property {string} type
+ * @property {string} name
+ * @property {any} value
+ *
+ * -----
+ *
+ * @typedef SkyBlockProfileAPIResponse
+ * @property {boolean} succcess
+ * @property {SkyBlockProfile} profile
+ *
+ * -----
+ *
+ * @typedef SkyBlockProfile
+ * @property {string} profile_id
+ * @property {{[uuid: string]: SkyBlockPlayer}} members
+ *
+ * -----
+ *
+ * @typedef SkyBlockPlayer
+ * @property {number} last_save
+ * @property {SkyBlockPlayerInventory} inv_armor
+ * @property {number} first_join
+ * @property {number} first_join_hub first_join + first_join_hub = timestamp?
+ * @property {SkyBlockStats} stats
+ * @property {{[id: string]: SkyBlockObjective}} objectives
+ * @property {Array<string>} tutorial
+ * @property {{[id: string]: SkyBlockQuest}} quests
+ * @property {number} coin_purse
+ * @property {number} last_death
+ * @property {Array<string>} crafted_generators
+ * @property {Array<string>} visited_zones
+ * @property {Array<string>} achievement_spawned_island_types
+ * @property {{[type: string]: SkyBlockSlayerBoss}} slayer_bosses currently available: zombie, spider, and wolf
+ * @property {number} experience_skill_runecrafting
+ * @property {number} experience_skill_combat
+ * @property {number} experience_skill_mining
+ * @property {Array<string>} unlocked_coll_tiers
+ * @property {SkyBlockPlayerInventory} fishing_bag
+ * @property {number} experience_skill_alchemy
+ * @property {number} experience_skill_farming
+ * @property {{[type: string]: number}} collection REMEMBER: KEYS ARE ALL UPPER CASE
+ * @property {SkyBlockPlayerInventory} quiver
+ * @property {SkyBlockPlayerInventory} ender_chest_contents
+ * @property {SkyBlockPlayerInventory} potion_bag
+ * @property {number} experience_skill_enchanting
+ * @property {number} experience_skill_fishing
+ * @property {SkyBlockPlayerInventory} inv_contents
+ * @property {SkyBlockPlayerInventory} tailsman_bag
+ * @property {number} experience_skill_foraging
+ * @property {number} experience_skill_carpentry
+ *
+ * -----
+ *
+ * @typedef SkyBlockSlayerBoss
+ * @property {{[level: string]: boolean}} claimed_levels
+ * @property {number} boss_kills_tier_0
+ * @property {number} boss_kills_tier_1
+ * @property {number} boss_kills_tier_2
+ * @property {number} boss_kills_tier_3
+ * @property {number} boss_kills_tier_4
+ * @property {number} xp
+ *
+ * -----
+ *
+ * @typedef SkyBlockQuest
+ * @property {'COMPLETE' | 'ACTIVE'} status
+ * @property {number} activated_at
+ * @property {number} activated_at_sb
+ * @property {number} completed_at
+ * @property {number} completed_at_sb
+ *
+ * -----
+ *
+ * @typedef SkyBlockObjective
+ * @property {'COMPLETE' | 'ACTIVE'} status
+ * @property {0 | 1} progress
+ * @property {number} completed_at
+ *
+ * -----
+ *
+ * @typedef SkyBlockStats
+ * @property {number} kills
+ * @property {number} kills_chicken
+ * @property {number} kills_pig
+ * @property {number} kills_cow
+ * @property {number} highest_crit_damage its broken? the value is insanely high
+ * @property {number} kills_skeleton
+ * @property {number} kills_zombie
+ * @property {number} kills_invisible_creeper
+ * @property {number} kills_emerald_slime
+ * @property {number} deaths
+ * @property {number} deaths_diamond_skeleton
+ * @property {number} deaths_diamond_zombie
+ * @property {number} kills_diamond_skeleton
+ * @property {number} deaths_void
+ * @property {number} kills_diamond_zombie
+ * @property {number} deaths_fall
+ * @property {number} kills_lapis_zombie
+ * @property {number} deaths_redstone_pigman
+ * @property {number} kills_enderman
+ * @property {number} deaths_lapis_zombie
+ * @property {number} kills_sheep
+ * @property {number} kills_rabbit
+ * @property {number} kills_zombie_villager
+ * @property {number} deaths_fire
+ * @property {number} kills_spider
+ * @property {number} deaths_emerald_slime
+ * @property {number} items_fished
+ * @property {number} items_fished_normal
+ * @property {number} kills_pond_squid
+ * @property {number} auctions_created
+ * @property {number} auctions_fees
+ * @property {number} deaths_slime
+ * @property {number} kills_dasher_spider
+ * @property {number} kills_splitter_spider
+ * @property {number} deaths_wither_skeleton
+ * @property {number} deaths_blaze
+ * @property {number} kills_fireball_magma_cube
+ * @property {number} deaths_fireball_magma_cube
+ * @property {number} kills_wither_skeleton
+ * @property {number} kills_magma_cube
+ * @property {number} deaths_magma_cube_boss
+ * @property {number} kills_blaze
+ * @property {number} kills_witch
+ * @property {number} deaths_spider
+ * @property {number} kills_random_slime
+ * @property {number} kills_ghast
+ * @property {number} kills_generator_slime
+ * @property {number} kills_weaver_spider
+ * @property {number} kills_splitter_spider_silverfish
+ * @property {number} kills_pigman
+ * @property {number} kills_generator_magma_cube
+ * @property {number} deaths_generator_magma_cube
+ * @property {number} auction_bids
+ * @property {number} auctions_highest_bid
+ * @property {number} auctions_completed
+ * @property {number} auctions_sold_common
+ * @property {number} auctions_gold_earned
+ * @property {number} auctions_won
+ * @property {number} auctions_bought_rare
+ * @property {number} auctions_gold_spent
+ * @property {number} auctions_sold_rare
+ * @property {number} auctions_no_bids
+ * @property {number} kills_spider_jockey
+ * @property {number} kills_jockey_shot_silverfish
+ * @property {number} kills_jockey_skeleton
+ * @property {number} auctions_bought_uncommon
+ * @property {number} auctions_sold_uncommon
+ * @property {number} auctions_bought_common
+ * @property {number} items_fished_treasure
+ * @property {number} kills_player
+ * @property {number} deaths_soffocation
+ * @property {number} deaths_player
+ * @property {number} kills_redstone_pigman
+ * @property {number} items_fished_large_treasure
+ * @property {number} kills_sea_walker
+ * @property {number} kills_sea_archer
+ * @property {number} kills_sea_leech
+ * @property {number} kills_sea_guardian
+ * @property {number} kills_zombie_deep
+ * @property {number} kills_chicken_deep
+ * @property {number} deaths_guardian_defender
+ * @property {number} kills_guardian_defender
+ * @property {number} kills_catfish
+ * @property {number} deaths_drowning
+ * @property {number} kills_ruinwolf
+ * @property {number} kills_deep_sea_protector
+ * @property {number} deaths_sea_archer
+ * @property {number} deaths_zombie_deep
+ * @property {number} deaths_skeleton
+ * @property {number} deaths_magma_cube
+ * @property {number} auctions_sold_epic
+ * @property {number} kills_generator_ghast
+ * @property {number} kills_respawning_skeleton
+ * @property {number} deaths_enderman
+ * @property {number} end_race_best_time in milliseconds
+ * @property {number} deaths_zealot_enderman
+ * @property {number} kills_zealot_enderman
+ * @property {number} kills_endermite
+ * @property {number} deaths_obsidian_wither
+ * @property {number} deaths_endermite
+ * @property {number} kills_watcher
+ * @property {number} auctions_bought_epic
+ * @property {number} kills_obsidian_wither
+ * @property {number} deaths_unknown
+ * @property {number} kills_night_respawning_skeleton
+ * @property {number} deaths_cactus
+ * @property {number} deaths_watcher
+ * @property {number} kills_unburried_zombie
+ * @property {number} deaths_unburried_zombie
+ * @property {number} kills_old_wolf
+ * @property {number} deaths_old_wolf
+ * @property {number} deaths_old_dragon
+ * @property {number} auctions_bought_legendary
+ * @property {number} deaths_wise_dragon
+ * @property {number} ender_crystals_destroyed
+ * @property {number} deaths_strong_dragon
+ * @property {number} kills_voracious_spider
+ * @property {number} deaths_zombie
+ * @property {number} deaths_wolf
+ * @property {number} kills_magma_cube_boss
+ * @property {number} kills_howling_spirit
+ * @property {number} kills_soul_of_the_alpha
+ * @property {number} deaths_pack_spirit
+ * @property {number} kills_pack_spirit
+ * @property {number} deaths_protector_dragon
+ * @property {number} kills_brood_mother_spider
+ * @property {number} kills_brood_mother_cave_spider
+ * @property {number} kills_protector_dragon
+ * @property {number} kills_strong_dragon
+ * @property {number} deaths_unstable_dragon
+ * @property {number} kills_wise_dragon
+ * @property {number} kills_unstable_dragon
+ * @property {number} kills_young_dragon
+ * @property {number} deaths_young_dragon
+ *
+ * -----
+ *
+ * @typedef SkyBlockPlayerInventory
+ * @property {number} type
+ * @property {string} data decode base64 -> decompress gzip -> nbt data
  *
  * -----
  *
@@ -644,7 +874,7 @@
  * Housing,
  * Legacy,
  * SkyBlock: {
- *   profiles: Map<string, {profile_id: string, cute_name: string}>
+ *   profiles: {[uuid: string]: {profile_id: string, cute_name: string}}
  * },
  * }} Stats
  *

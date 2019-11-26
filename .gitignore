@@ -2,3 +2,5 @@
 /data.json
 *.log
 /cache.json
+logs/
+config.yml

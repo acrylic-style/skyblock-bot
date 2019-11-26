@@ -2,15 +2,22 @@ const fs = require('fs').promises
 const FILE = `${__dirname}/../cache.json`
 
 /**
+ * @typedef CacheData
+ * @property {number} expiresAfter
+ * @property {number} lastUpdated
+ * @property {any} value
+ */
+
+/**
  * Provides static cache methods.
  */
 class Cache {
-  async checkFile() {
-    if (!fs.stat(FILE)) await fs.writeFile(FILE, '{}')
+  static async checkFile() {
+    await fs.stat(FILE).catch(async () => await fs.writeFile(FILE, '{}'))
   }
 
   static async getCacheData() {
-    await this.checkFile()
+    await Cache.checkFile()
     return JSON.parse(await fs.readFile(FILE, 'utf-8'))
   }
 
@@ -22,7 +29,7 @@ class Cache {
    */
   static async setCache(key, value, expiresAfter) {
     const data = await Cache.getCacheData()
-    data[key] = { value, expiresAfter: Date.now() + expiresAfter }
+    data[key] = { value: value, expiresAfter: Date.now() + expiresAfter, lastUpdated: Date.now() }
     return await fs.writeFile(FILE, JSON.stringify(data))
   }
 
@@ -44,8 +51,20 @@ class Cache {
    */
   static async getCache(key) {
     const data = (await Cache.getCacheData())[key]
-    if (data && data.expiresAfter < Date.now()) await Cache.invalidateCache(key)
+    if (data && data.expiresAfter < Date.now() && data.value === undefined) await Cache.invalidateCache(key)
     return data ? data.value : null
+  }
+
+  /**
+   * Get cache value.
+   * To check if it exists, use Cache#exists(key).
+   * @param {string} key 
+   * @returns {Promise<CacheData>} cache if found null otherwise
+   */
+  static async getRawCache(key) {
+    const data = (await Cache.getCacheData())[key]
+    if (data && data.expiresAfter < Date.now() && data.value === undefined) await Cache.invalidateCache(key)
+    return data
   }
 
   /**
@@ -55,7 +74,7 @@ class Cache {
    */
   static async exists(key) {
     const data = (await Cache.getCacheData())[key]
-    if (data && data.expiresAfter < Date.now()) await Cache.invalidateCache(key)
+    if (data && data.expiresAfter < Date.now() && data.value === undefined) await Cache.invalidateCache(key)
     return !!(await Cache.getCacheData())[key] // response: nO
   }
 

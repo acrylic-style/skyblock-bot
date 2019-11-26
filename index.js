@@ -14,7 +14,7 @@ const start = async () => {
 }
 
 const stop = async () => {
-  await (await client.get()).destroy()
+  if (await client.get()) await (await client.get()).destroy()
   logger.info('Bot has been stopped.')
   await client.set(null)
   Object.keys(require.cache).forEach(e => { !e.endsWith('.js') || delete require.cache[e]})

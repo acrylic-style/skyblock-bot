@@ -6,7 +6,7 @@ module.exports = class extends Command {
     super('help', { args: ['[Command]'] })
   }
 
-  async run(msg, lang = require('../lang/en.json'), args, sendDeletable) {
+  async run(msg, lang = require('../lang/en.json'), args, sendDeletable, prefix) {
     if (args[1]) {
       const { commands } = require('bot-framework/commands')
       const command = commands[args[1]]
@@ -31,9 +31,12 @@ module.exports = class extends Command {
     }
     const embed = new Discord.RichEmbed()
       .setTitle('List of commands')
-      .addField('help', lang['commands']['help'])
-      .addField('eval', lang['commands']['eval'])
-      .addField('version', lang['commands']['version'])
+      .addField(`${prefix}help`, lang['commands']['help'])
+      .addField(`${prefix}auctions <Player>`, 'Shows list of player\'s active auctions')
+      .addField(`${prefix}profiles <Player>`, 'Shows list of player\'s skyblock profiles')
+      .addField(`${prefix}profile <Profile ID>`, 'Shows information for specified profile.')
+      .addField(`${prefix}player <Player>`, 'Shows information for specified player.')
+      .addField(`${prefix}version`, lang['commands']['version'])
       .addField('Note!', `\`${args[0]} [Command]\` for more help!`)
       .setColor([0,255,0])
     sendDeletable(embed)

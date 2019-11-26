@@ -6,6 +6,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2018
   },
+  parser: 'babel-eslint',
   extends: 'eslint:recommended',
   rules: {
     'one-var': [2, 'never'],

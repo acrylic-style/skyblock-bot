@@ -4,6 +4,12 @@
     "discord.js": "^11.5.1",
     "logger.js": "acrylic-style/logger.js",
     "node-fetch": "^2.6.0",
+    "prismarine-nbt": "^1.2.1",
     "yaml": "^1.7.2"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.7.1",
+    "typescript": "^3.8.0-dev.20191125"
   }
 }
