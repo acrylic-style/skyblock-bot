@@ -29,13 +29,13 @@ module.exports = class extends Command {
         }
       }
       if (!sortOptions || sortOption === '!highestBid') {
-        auctions = auctions.sort((a, b) => a.highest_bid_amount > b.highest_bid_amount)
+        auctions = auctions.sort((a, b) => b.highest_bid_amount - a.highest_bid_amount)
       } else if (sortOption === '!lowestBid') {
-        auctions = auctions.sort((a, b) => a.highest_bid_amount < b.highest_bid_amount)
+        auctions = auctions.sort((a, b) => a.highest_bid_amount - b.highest_bid_amount)
       } else if (sortOption === '!mostBids') {
-        auctions = auctions.sort((a, b) => a.bids > b.bids)
+        auctions = auctions.sort((a, b) => b.bids - a.bids)
       } else if (sortOption === '!endingSoon') {
-        auctions = auctions.sort((a, b) => a.end < b.end)
+        auctions = auctions.sort((a, b) => a.end - b.end)
       }
       const tempAuctions = []
       if (categories.includes('!weapons')) tempAuctions.push(...auctions.filter(a => a.category === 'weapon'))
@@ -57,12 +57,16 @@ module.exports = class extends Command {
         auctions.length = 20
         auctions = auctions.filter(_=>_)
         let strings = 100
+        await message.edit('Sorting auctions... (It may takes up to 4 minutes!)')
         for (let i = 0; i < auctions.length; i++) {
           const auction = auctions[i]
           const player = await util.getPlayer(config.apiKey, auction.auctioneer, true)
           const desc = `${util.stripColor(auction.item_lore)}
+
+
 Seller: ${util.stripColor(player.prefix || util.convertRank(player.rank || player.packageRank || player.newPackageRank))} ${player.displayname}
 Auction ID: ${auction.uuid}
+Starting Bid: ${auction.starting_bid.toLocaleString()} coins
 Highest Bid: ${auction.highest_bid_amount.toLocaleString()} coins
 Bids: ${auction.bids.length}
 Ends in: ${util.dateDiff(Date.now(), auction.end)}`

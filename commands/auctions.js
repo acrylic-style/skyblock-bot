@@ -29,7 +29,9 @@ module.exports = class extends Command {
         auctions.forEach(auction => {
           embed.addField(util.stripColor(auction.item_name), `${util.stripColor(auction.item_lore)}
 
+
 Auction ID: ${auction.uuid}
+Starting Bid: ${auction.starting_bid.toLocaleString()} coins
 Highest Bid: ${auction.highest_bid_amount.toLocaleString()} coins
 Bids: ${auction.bids.length}
 Ends in: ${util.dateDiff(auction.end, new Date())}`)
