@@ -69,9 +69,9 @@ Auction ID: ${auction.uuid}
 Starting Bid: ${auction.starting_bid.toLocaleString()} coins
 Highest Bid: ${auction.highest_bid_amount.toLocaleString()} coins
 Bids: ${auction.bids.length}
-Ends in: ${util.dateDiff(Date.now(), auction.end)}`
+Ends in: ${util.dateDiff(Date.now(), auction.end)}` // TODO: bugged (-1d23h58m32s)
           strings = strings + desc.length + util.stripColor(auction.item_name).length
-          if (strings < 6000) embed.addField(util.stripColor(auction.item_name), desc); else break
+          if (strings < 6000) embed.addField(`${util.stripColor(auction.item_name)}`, desc); else break
         }
       }
       message.edit(embed)
