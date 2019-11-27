@@ -31,8 +31,8 @@ class Util {
    * @param {boolean} isUniqueId
    * @returns {Promise<Player>}
    */
-  static async getPlayer(key, uuidOrName, isUniqueId) {
-    if (await cache.exists(`player:${uuidOrName}`)) return await cache.getCache(`player:${uuidOrName}`)
+  static async getPlayer(key, uuidOrName, isUniqueId, bypassCache = false) {
+    if (!bypassCache && await cache.exists(`player:${uuidOrName}`)) return await cache.getCache(`player:${uuidOrName}`)
     const response = await Util.getAPI('player', key, {[isUniqueId ? 'uuid' : 'name']: uuidOrName})
     if (!response.success) throw new HypixelAPIError(response.cause)
     await cache.setCache(`player:${uuidOrName}`, response.player, 1000*60*60*24) // expires in a day
@@ -44,8 +44,8 @@ class Util {
    * @param {*} profile profile ID, you can grab it from Player.stats.SkyBlock.profiles. (string[])
    * @returns {Promise<SkyBlockProfile>}
    */
-  static async getSkyBlockProfile(key, profile) {
-    if (await cache.exists(`sbprofile:${profile}`)) return await cache.getCache(`sbprofile:${profile}`)
+  static async getSkyBlockProfile(key, profile, bypassCache = false) {
+    if (!bypassCache && await cache.exists(`sbprofile:${profile}`)) return await cache.getCache(`sbprofile:${profile}`)
     const response = await Util.getAPI('skyblock/profile', key, {profile})
     if (!response.success) throw new HypixelAPIError(response.cause)
     await cache.setCache(`sbprofile:${profile}`, response.profile, 1000*60*60) // expires in a hour
@@ -57,8 +57,8 @@ class Util {
    * @param {number} page
    * @returns {Promise<SkyBlockAuctionsAPIResponse>}
    */
-  static async getSkyBlockAuctions(key, page) {
-    if (await cache.exists(`skyblock/auctions/?page=${page}`)) return await cache.getCache(`skyblock/auctions/?page=${page}`)
+  static async getSkyBlockAuctions(key, page, bypassCache = false) {
+    if (!bypassCache && await cache.exists(`skyblock/auctions/?page=${page}`)) return await cache.getCache(`skyblock/auctions/?page=${page}`)
     const response = await Util.getAPI('skyblock/auctions', key, { page }) // actual type: SkyBlockAuctionsAPIResponse
     if (!response.success) throw new HypixelAPIError(response.cause)
     await cache.setCache(`skyblock/auctions/?page=${page}`, response, 1000*60*60)
@@ -69,8 +69,8 @@ class Util {
    * @param {string} key api key
    * @returns {Promise<Array<Auction>>}
    */
-  static async getAllSkyblockAuctions(key) {
-    if (await cache.exists('skyblock/auctions/all')) return await cache.getCache('skyblock/auctions/all')
+  static async getAllSkyblockAuctions(key, bypassCache = false) {
+    if (!bypassCache && await cache.exists('skyblock/auctions/all')) return await cache.getCache('skyblock/auctions/all')
     const firstPage = await Util.getSkyBlockAuctions(key, 0)
     let auctions = firstPage.auctions
     for (let i = 1; i < firstPage.totalPages; i++) {
@@ -188,6 +188,20 @@ class Util {
     const lv = Util.getLevel(exp)
     const x0 = Util.getTotalExpToLevel(lv)
     return (exp - x0) / (Util.getTotalExpToLevel(lv + 1) - x0)
+  }
+
+  /**
+   * @param {Date | number} date1
+   * @param {Date | number} date2
+   * @returns {string} date like 1d2h3m4s
+   */
+  static dateDiff(date1, date2) {
+    const time = typeof date2 === 'number' ? date2-(typeof date1 === 'number' ? date1 : date1.getTime()) : date2.getTime()-(typeof date1 === 'number' ? date1 : date1.getTime)
+    const days = Math.floor(time/(1000*60*60*24))
+    const hours = Math.floor((time-(1000*60*60*24*days))/(1000*60*60))
+    const minutes = Math.floor((time-(1000*60*60*24*days+1000*60*60*hours))/(1000*60))
+    const seconds = Math.floor((time-(1000*60*60*24*days+1000*60*60*hours+1000*60*minutes))/1000)
+    return `${days === 0 ? '': `${days}d`}${days === 0 && hours === 0 ? '' : `${hours}h`}${days === 0 && hours === 0 && minutes === 0 ? '' : `${minutes}m`}${seconds}s`
   }
 }
 

@@ -27,7 +27,12 @@ module.exports = class extends Command {
         embed.setDescription('This player doesn\'t have any active auctions!')
       } else {
         auctions.forEach(auction => {
-          embed.addField(util.stripColor(auction.item_name), `${util.stripColor(auction.item_lore)}\n\nAuction ID: ${auction.uuid}\nHighest Bid: ${auction.highest_bid_amount.toLocaleString()} coins\nBids: ${auction.bids.length}`)
+          embed.addField(util.stripColor(auction.item_name), `${util.stripColor(auction.item_lore)}
+
+Auction ID: ${auction.uuid}
+Highest Bid: ${auction.highest_bid_amount.toLocaleString()} coins
+Bids: ${auction.bids.length}
+Ends in: ${util.dateDiff(auction.end, new Date())}`)
         })
       }
       message.edit(embed)

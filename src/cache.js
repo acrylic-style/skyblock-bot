@@ -16,6 +16,9 @@ class Cache {
     await fs.stat(FILE).catch(async () => await fs.writeFile(FILE, '{}'))
   }
 
+  /**
+   * @returns {Promise<{[id: string]: CacheData}>}
+   */
   static async getCacheData() {
     await Cache.checkFile()
     return JSON.parse(await fs.readFile(FILE, 'utf-8'))
@@ -51,7 +54,7 @@ class Cache {
    */
   static async getCache(key) {
     const data = (await Cache.getCacheData())[key]
-    if (data && data.expiresAfter < Date.now() && data.value === undefined) await Cache.invalidateCache(key)
+    if (data && data.expiresAfter < Date.now() || data.value === undefined) await Cache.invalidateCache(key)
     return data ? data.value : null
   }
 
@@ -63,7 +66,7 @@ class Cache {
    */
   static async getRawCache(key) {
     const data = (await Cache.getCacheData())[key]
-    if (data && data.expiresAfter < Date.now() && data.value === undefined) await Cache.invalidateCache(key)
+    if (data && data.expiresAfter < Date.now() || data.value === undefined) await Cache.invalidateCache(key)
     return data
   }
 
@@ -74,7 +77,7 @@ class Cache {
    */
   static async exists(key) {
     const data = (await Cache.getCacheData())[key]
-    if (data && data.expiresAfter < Date.now() && data.value === undefined) await Cache.invalidateCache(key)
+    if (data && data.expiresAfter < Date.now() || data === undefined || data.value === undefined) await Cache.invalidateCache(key)
     return !!(await Cache.getCacheData())[key] // response: nO
   }
 
