@@ -35,7 +35,7 @@ module.exports = class extends Command {
       } else if (sortOption === '!mostBids') {
         auctions = auctions.sort((a, b) => b.bids - a.bids)
       } else if (sortOption === '!endingSoon') {
-        auctions = auctions.sort((a, b) => a.end - b.end)
+        auctions = auctions.sort((a, b) => b.end - a.end)
       }
       const tempAuctions = []
       if (categories.includes('!weapons')) tempAuctions.push(...auctions.filter(a => a.category === 'weapon'))
